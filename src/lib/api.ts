@@ -33,7 +33,6 @@ api.interceptors.response.use(
       !String(originalRequest?.url ?? "").includes("/api/v1/auth/refresh")
     ) {
       if (isRefreshing) {
-        // Queue requests that come in while refresh is in progress
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -47,8 +46,8 @@ api.interceptors.response.use(
       try {
         await api.post("/api/v1/auth/refresh");
         processQueue(null);
-        // Small delay to ensure cookie is set before retrying
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Wait for browser to store the new cookie before retrying
+        await new Promise((resolve) => setTimeout(resolve, 200));
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
