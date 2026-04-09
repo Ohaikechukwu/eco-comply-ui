@@ -6,6 +6,7 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Module-level singleton — guaranteed one instance
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
@@ -20,6 +21,13 @@ const processQueue = (error: unknown) => {
   failedQueue = [];
 };
 
+// Dedicated refresh instance — no interceptors to avoid infinite loops
+const refreshApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
+  headers: { "Content-Type": "application/json" },
+});
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -27,16 +35,20 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !String(originalRequest?.url ?? "").includes("/api/v1/auth/refresh")
-    ) {
+    const isRefreshCall = String(originalRequest?.url ?? "").includes(
+      "/api/v1/auth/refresh"
+    );
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshCall) {
       if (isRefreshing) {
+        // Don't call refresh again — just queue and wait
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(() => api(originalRequest))
+          .then(() => {
+            originalRequest._retry = true;
+            return api(originalRequest);
+          })
           .catch((e) => Promise.reject(e));
       }
 
@@ -44,13 +56,14 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post("/api/v1/auth/refresh");
+        // Use dedicated instance to avoid interceptor loop
+        await refreshApi.post("/api/v1/auth/refresh");
         processQueue(null);
-        // Wait for browser to store the new cookie before retrying
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
+        isRefreshing = false;
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
