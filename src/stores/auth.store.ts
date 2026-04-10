@@ -1,3 +1,4 @@
+// src/stores/auth.store.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User, Org } from "@/types";
@@ -24,6 +25,9 @@ export const useAuthStore = create<AuthStore>()(
           user: state.user ? { ...state.user, ...partial } : null,
         })),
     }),
-    { name: "ecocomply-auth" }
+    {
+      name: "ecocomply-auth",
+      skipHydration: true, // manually rehydrate
+    }
   )
 );
