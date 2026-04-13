@@ -12,10 +12,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, options, id, ...props }, ref) => (
     <div className="w-full">
       {label && <label htmlFor={id} className="label">{label}</label>}
-      <select ref={ref} id={id} className={cn("input", error && "border-red-400", className)} {...props}>
+      <select ref={ref} id={id} className={cn("input", error && "border-[var(--danger)]", className)} {...props}>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-[var(--danger)]">{error}</p>}
     </div>
   )
 );

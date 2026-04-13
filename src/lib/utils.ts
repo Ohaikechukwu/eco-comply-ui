@@ -20,15 +20,15 @@ export function timeAgo(date: string | Date): string {
 
 export function statusBadgeClass(status: string): string {
   const map: Record<string, string> = {
-    draft:            "bg-gray-100 text-gray-700",
-    in_progress:      "bg-blue-100 text-blue-700",
-    submitted:        "bg-yellow-100 text-yellow-700",
-    under_review:     "bg-orange-100 text-orange-700",
-    pending_actions:  "bg-red-100 text-red-700",
-    completed:        "bg-green-100 text-green-700",
-    finalized:        "bg-brand-100 text-brand-700",
+    draft:            "badge--gray",
+    in_progress:      "badge--blue",
+    submitted:        "badge--yellow",
+    under_review:     "badge--orange",
+    pending_actions:  "badge--red",
+    completed:        "badge--green",
+    finalized:        "badge--green",
   };
-  return map[status] ?? "bg-gray-100 text-gray-700";
+  return map[status] ?? "badge--gray";
 }
 
 export function statusLabel(status: string): string {

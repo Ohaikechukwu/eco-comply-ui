@@ -15,7 +15,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       primary: "btn-primary",
       secondary: "btn-secondary",
       danger: "btn-danger",
-      ghost: "hover:bg-gray-100 text-gray-700 font-medium rounded-lg transition-colors",
+      ghost: "btn-ghost font-medium",
     };
     const sizes = { sm: "text-xs px-3 py-1.5", md: "text-sm px-4 py-2", lg: "text-base px-5 py-2.5" };
     return (

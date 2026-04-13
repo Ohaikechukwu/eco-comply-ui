@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn("animate-spin text-brand-600", className)} />;
+  return <Loader2 className={cn("animate-spin text-[var(--brand)]", className)} />;
 }
 
 export function PageSpinner() {

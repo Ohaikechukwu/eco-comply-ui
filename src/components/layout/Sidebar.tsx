@@ -32,17 +32,17 @@ export function Sidebar() {
     <motion.aside
       animate={{ width: sidebarOpen ? 240 : 64 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="relative flex flex-col h-screen bg-white border-r border-gray-200 overflow-hidden shrink-0"
+      className="app-sidebar"
     >
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-gray-100">
-        <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-3 px-4 h-16 border-b border-[var(--border)]">
+        <div className="w-8 h-8 rounded-lg bg-[var(--brand)] flex items-center justify-center shrink-0">
           <Leaf className="w-4 h-4 text-white" />
         </div>
         <AnimatePresence>
           {sidebarOpen && (
             <motion.span
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="text-sm font-bold text-gray-900 whitespace-nowrap"
+              className="text-sm font-bold app-text whitespace-nowrap"
             >
               EcoComply NG
             </motion.span>
@@ -60,7 +60,7 @@ export function Sidebar() {
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                active ? "bg-brand-50 text-brand-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                active ? "bg-[var(--surface-2)] text-[var(--brand-700)]" : "app-muted hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
               )}
             >
               <Icon className="w-5 h-5 shrink-0" />
@@ -79,10 +79,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="px-2 pb-4 border-t border-gray-100 pt-4">
+      <div className="px-2 pb-4 border-t border-[var(--border)] pt-4">
         <button
           onClick={logout}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-[var(--danger)] hover:bg-[var(--danger-bg)] transition-colors"
         >
           <LogOut className="w-5 h-5 shrink-0" />
           <AnimatePresence>
@@ -97,9 +97,9 @@ export function Sidebar() {
 
       <button
         onClick={toggleSidebar}
-        className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:bg-gray-50 z-10"
+        className="absolute top-1/2 -right-3 w-6 h-6 rounded-full bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center shadow-sm hover:bg-[var(--surface-2)] z-10"
       >
-        {sidebarOpen ? <ChevronLeft className="w-3 h-3 text-gray-500" /> : <ChevronRight className="w-3 h-3 text-gray-500" />}
+        {sidebarOpen ? <ChevronLeft className="w-3 h-3 app-muted" /> : <ChevronRight className="w-3 h-3 app-muted" />}
       </button>
     </motion.aside>
   );

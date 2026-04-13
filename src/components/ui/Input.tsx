@@ -14,10 +14,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         id={id}
-        className={cn("input", error && "border-red-400 focus:ring-red-400", className)}
+        className={cn("input", error && "border-[var(--danger)] focus:ring-[var(--danger)]", className)}
         {...props}
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-[var(--danger)]">{error}</p>}
     </div>
   )
 );

@@ -9,5 +9,5 @@ export function CardHeader({ className, children, ...props }: React.HTMLAttribut
 }
 
 export function CardTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-base font-semibold text-gray-900", className)} {...props}>{children}</h3>;
+  return <h3 className={cn("text-base font-semibold app-text", className)} {...props}>{children}</h3>;
 }

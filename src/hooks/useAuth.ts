@@ -6,10 +6,18 @@ export function useAuth() {
   const { user, org, isAuthenticated, setAuth, clearAuth } = useAuthStore();
   const router = useRouter();
 
+  const clearCSRFCookie = () => {
+    if (typeof document === "undefined") return;
+    const name =
+      process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? "csrf_token";
+    document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax`;
+  };
+
   const logout = async () => {
     try {
       await api.post("/api/v1/auth/logout");
     } finally {
+      clearCSRFCookie();
       clearAuth();
       router.push("/login");
     }

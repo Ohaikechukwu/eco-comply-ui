@@ -54,10 +54,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
+    <div className="auth-shell">
 
       {/* ── LEFT PANEL — background image + environmental messaging ── */}
-      <div style={{
+      <div className="auth-left" style={{
         flex: 1,
         position: "relative",
         overflow: "hidden",
@@ -136,17 +136,11 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT PANEL — login form ── */}
-      <div style={{
-        width: "100%",
-        maxWidth: 520,
-        background: "rgba(8, 22, 8, 0.88)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
+      <div className="auth-right" style={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         padding: "3rem 3.5rem",
-        borderLeft: "1px solid rgba(255,255,255,0.08)",
       }}>
         <motion.div
           initial={{ opacity: 0, x: 20 }}

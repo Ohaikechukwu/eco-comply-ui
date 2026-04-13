@@ -19,8 +19,8 @@ export default function DashboardPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Overview of your inspection activity</p>
+          <h1 className="text-xl font-bold app-text">Dashboard</h1>
+          <p className="text-sm app-muted mt-0.5">Overview of your inspection activity</p>
         </div>
         <Button onClick={() => router.push("/dashboard/inspections/new")}>
           + New inspection
@@ -35,7 +35,7 @@ export default function DashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">Recent inspections</h2>
+        <h2 className="text-sm font-semibold app-text mb-3">Recent inspections</h2>
         {data?.recent?.length ? (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"

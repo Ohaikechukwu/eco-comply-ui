@@ -1,5 +1,36 @@
 import axios from "axios";
 
+const CSRF_COOKIE_NAME =
+  process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? "csrf_token";
+const CSRF_HEADER_NAME =
+  process.env.NEXT_PUBLIC_CSRF_HEADER_NAME ?? "X-CSRF-Token";
+
+const isSafeMethod = (method?: string) => {
+  const safe = ["GET", "HEAD", "OPTIONS"];
+  return safe.includes((method ?? "GET").toUpperCase());
+};
+
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") return "";
+  return (
+    document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${name}=`))
+      ?.split("=")[1] ?? ""
+  );
+};
+
+const attachCSRF = (config: any) => {
+  if (isSafeMethod(config.method)) return config;
+
+  const token = getCookie(CSRF_COOKIE_NAME);
+  if (!token) return config;
+
+  config.headers = config.headers ?? {};
+  config.headers[CSRF_HEADER_NAME] = decodeURIComponent(token);
+  return config;
+};
+
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
@@ -27,6 +58,9 @@ const refreshApi = axios.create({
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
+
+api.interceptors.request.use(attachCSRF);
+refreshApi.interceptors.request.use(attachCSRF);
 
 api.interceptors.response.use(
   (res) => res,

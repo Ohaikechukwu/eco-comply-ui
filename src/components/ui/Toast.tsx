@@ -32,9 +32,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const icons  = { success: CheckCircle, error: XCircle, info: Info };
   const colors = {
-    success: "bg-green-50 border-green-200 text-green-800",
-    error:   "bg-red-50 border-red-200 text-red-800",
-    info:    "bg-blue-50 border-blue-200 text-blue-800",
+    success: "bg-[var(--badge-green-bg)] border-[var(--badge-green-fg)]/30 text-[var(--badge-green-fg)]",
+    error:   "bg-[var(--badge-red-bg)] border-[var(--badge-red-fg)]/30 text-[var(--badge-red-fg)]",
+    info:    "bg-[var(--badge-blue-bg)] border-[var(--badge-blue-fg)]/30 text-[var(--badge-blue-fg)]",
   };
 
   return (
@@ -50,7 +50,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 50 }}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-sm shadow-md min-w-72 ${colors[t.type]}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg border text-sm shadow-md min-w-72 bg-[var(--surface)] ${colors[t.type]}`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span className="flex-1">{t.message}</span>
