@@ -1,5 +1,12 @@
 import axios from "axios";
 
+type ApiRequestConfig = {
+  _retry?: boolean;
+  skipAuthRefresh?: boolean;
+  skipAuthRedirect?: boolean;
+  url?: string;
+};
+
 const CSRF_COOKIE_NAME =
   process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? "csrf_token";
 const CSRF_HEADER_NAME =
@@ -65,15 +72,22 @@ refreshApi.interceptors.request.use(attachCSRF);
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const originalRequest = error.config as typeof error.config & {
-      _retry?: boolean;
-    };
+    const originalRequest = (error.config ?? {}) as typeof error.config &
+      ApiRequestConfig;
 
     const isRefreshCall = String(originalRequest?.url ?? "").includes(
       "/api/v1/auth/refresh"
     );
+    const shouldSkipRefresh =
+      originalRequest.skipAuthRefresh === true ||
+      String(originalRequest?.url ?? "").includes("/api/v1/auth/login");
 
-    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshCall) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isRefreshCall &&
+      !shouldSkipRefresh
+    ) {
       if (isRefreshing) {
         // Don't call refresh again — just queue and wait
         return new Promise((resolve, reject) => {
@@ -98,7 +112,10 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError);
         isRefreshing = false;
-        if (typeof window !== "undefined") {
+        if (
+          typeof window !== "undefined" &&
+          !originalRequest.skipAuthRedirect
+        ) {
           window.location.href = "/login";
         }
         return Promise.reject(refreshError);

@@ -9,7 +9,10 @@ export function AuthHydration() {
   useEffect(() => {
     const hydrateSession = async () => {
       try {
-        const res = await api.get("/api/v1/auth/profile");
+        const res = await api.get("/api/v1/auth/profile", {
+          skipAuthRefresh: true,
+          skipAuthRedirect: true,
+        });
         const payload = res.data?.data;
         if (payload?.user && payload?.org) {
           useAuthStore.getState().setAuth(payload.user, payload.org);
