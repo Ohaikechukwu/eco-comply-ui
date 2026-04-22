@@ -27,7 +27,8 @@ export default function ReportsPage() {
         ? `/api/v1/reports?inspection_id=${inspectionId}`
         : "/api/v1/reports";
       const res = await api.get<APIResponse<Report[]>>(url);
-      return res.data.data ?? [];
+      // data could be null from backend, force to []
+      return res.data.data ?? [];  // already there but add the cast below
     },
   });
 
@@ -64,9 +65,9 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {isLoading ? <PageSpinner /> : reports?.length ? (
+      {isLoading ? <PageSpinner /> : (reports ?? []).length ? (
         <div className="space-y-3">
-          {reports.map((report) => (
+          {(reports ?? []).map((report) => (
             <Card key={report.id} className="p-4 flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
                 {report.status === "generating"
@@ -108,7 +109,9 @@ export default function ReportsPage() {
                       try {
                         const shared = await createShareLink.mutateAsync(report.id);
                         if (shared.share_token) {
-                          navigator.clipboard.writeText(`${window.location.origin}/reports/share/${shared.share_token}`);
+                          navigator.clipboard.writeText(
+                            `${window.location.origin}/reports/share/${shared.share_token}`
+                          );
                           success("Share link created and copied");
                         }
                       } catch {
@@ -125,7 +128,9 @@ export default function ReportsPage() {
         </div>
       ) : (
         <EmptyState icon={FileText} title="No reports yet"
-          description={inspectionId ? "Generate your first report above" : "Select an inspection to view its reports"} />
+          description={inspectionId
+            ? "Generate your first report above"
+            : "Select an inspection to view its reports"} />
       )}
     </div>
   );

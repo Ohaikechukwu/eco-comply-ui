@@ -133,14 +133,14 @@ export default function AnalyticsPage() {
           </CardHeader>
           <div className="rounded-xl bg-gray-50 p-4">
             <p className="text-sm text-gray-700">
-              {geojson?.features.length ?? 0} mapped inspections available from the backend GeoJSON endpoint.
+              {geojson?.features?.length ?? 0} mapped inspections available from the backend GeoJSON endpoint.
             </p>
             <p className="text-xs text-gray-500 mt-2">
               Use this feed for spatial analysis, dashboards, or mobile map overlays.
             </p>
           </div>
           <div className="mt-4 space-y-3 max-h-80 overflow-y-auto">
-            {data?.inspection_locations.map((location) => (
+            {(data?.inspection_locations ?? []).map((location) => (
               <div key={location.id} className="rounded-lg border border-gray-100 p-3">
                 <p className="text-sm font-medium text-gray-900">{location.project_name}</p>
                 <p className="text-xs text-gray-500 mt-1">{location.location_name || "No location name"}</p>
