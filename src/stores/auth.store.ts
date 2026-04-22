@@ -1,4 +1,3 @@
-// src/stores/auth.store.ts
 import { create } from "zustand";
 import type { User, Org } from "@/types";
 
@@ -18,8 +17,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
   org: null,
   isAuthenticated: false,
   hydrated: false,
-  setAuth: (user, org) => set({ user, org, isAuthenticated: true }),
-  clearAuth: () => set({ user: null, org: null, isAuthenticated: false }),
+  setAuth: (user, org) => set({ user, org, isAuthenticated: true, hydrated: true }),
+  clearAuth: () => set({ user: null, org: null, isAuthenticated: false, hydrated: true }),
   updateUser: (partial) =>
     set((state) => ({
       user: state.user ? { ...state.user, ...partial } : null,

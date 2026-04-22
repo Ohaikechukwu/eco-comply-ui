@@ -3,13 +3,12 @@ import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export function useAuth() {
-  const { user, org, isAuthenticated, setAuth, clearAuth } = useAuthStore();
+  const { user, org, isAuthenticated, hydrated, setAuth, clearAuth } = useAuthStore();
   const router = useRouter();
 
   const clearCSRFCookie = () => {
     if (typeof document === "undefined") return;
-    const name =
-      process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? "csrf_token";
+    const name = process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? "csrf_token";
     document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax`;
   };
 
@@ -27,5 +26,5 @@ export function useAuth() {
     return user ? roles.includes(user.role) : false;
   };
 
-  return { user, org, isAuthenticated, logout, hasRole };
+  return { user, org, isAuthenticated, hydrated, logout, hasRole };
 }
