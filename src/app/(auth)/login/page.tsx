@@ -30,12 +30,15 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      const res = await api.post("/api/v1/auth/login", data, {
+      // Login now hits the Next.js route, not backend directly
+      const res = await api.post("/api/auth/login", data, {
         skipAuthRefresh: true,
         skipAuthRedirect: true,
-      });
-      const { user, org } = res.data.data;
+      } as any);
+
+      const { user, org } = res.data.data; // no tokens exposed to JS
       setAuth(user, org);
+
       success("Welcome back!");
       router.push("/dashboard");
     } catch (err: any) {

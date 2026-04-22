@@ -1,50 +1,18 @@
 import axios from "axios";
 
-type ApiRequestConfig = {
-  _retry?: boolean;
-  skipAuthRefresh?: boolean;
-  skipAuthRedirect?: boolean;
-  url?: string;
-};
-
-const CSRF_COOKIE_NAME =
-  process.env.NEXT_PUBLIC_CSRF_COOKIE_NAME ?? "csrf_token";
-const CSRF_HEADER_NAME =
-  process.env.NEXT_PUBLIC_CSRF_HEADER_NAME ?? "X-CSRF-Token";
-
-const isSafeMethod = (method?: string) => {
-  const safe = ["GET", "HEAD", "OPTIONS"];
-  return safe.includes((method ?? "GET").toUpperCase());
-};
-
-const getCookie = (name: string) => {
-  if (typeof document === "undefined") return "";
-  return (
-    document.cookie
-      .split("; ")
-      .find((row) => row.startsWith(`${name}=`))
-      ?.split("=")[1] ?? ""
-  );
-};
-
-const attachCSRF = (config: any) => {
-  if (isSafeMethod(config.method)) return config;
-
-  const token = getCookie(CSRF_COOKIE_NAME);
-  if (!token) return config;
-
-  config.headers = config.headers ?? {};
-  config.headers[CSRF_HEADER_NAME] = decodeURIComponent(token);
-  return config;
-};
-
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
+  baseURL: "",  // relative URLs — same domain
+  withCredentials: true,  // send cookies
   headers: { "Content-Type": "application/json" },
 });
 
-// Module-level singleton — guaranteed one instance
+// For non-auth API calls that go directly to backend
+export const backendApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: false,
+  headers: { "Content-Type": "application/json" },
+});
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
@@ -52,71 +20,36 @@ let failedQueue: Array<{
 }> = [];
 
 const processQueue = (error: unknown) => {
-  failedQueue.forEach((p) => {
-    if (error) p.reject(error);
-    else p.resolve(undefined);
-  });
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(undefined)));
   failedQueue = [];
 };
-
-// Dedicated refresh instance — no interceptors to avoid infinite loops
-const refreshApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,
-  headers: { "Content-Type": "application/json" },
-});
-
-api.interceptors.request.use(attachCSRF);
-refreshApi.interceptors.request.use(attachCSRF);
 
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const originalRequest = (error.config ?? {}) as typeof error.config &
-      ApiRequestConfig;
+    const original = error.config as any;
+    const isRefreshCall = String(original?.url ?? "").includes("/api/auth/refresh");
+    const isLoginCall   = String(original?.url ?? "").includes("/api/auth/login");
+    const skipRefresh   = original?.skipAuthRefresh || isRefreshCall || isLoginCall;
 
-    const isRefreshCall = String(originalRequest?.url ?? "").includes(
-      "/api/v1/auth/refresh"
-    );
-    const shouldSkipRefresh =
-      originalRequest.skipAuthRefresh === true ||
-      String(originalRequest?.url ?? "").includes("/api/v1/auth/login");
-      String(originalRequest?.url ?? "").includes("/api/v1/auth/refresh");
-
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !isRefreshCall &&
-      !shouldSkipRefresh
-    ) {
+    if (error.response?.status === 401 && !original._retry && !skipRefresh) {
       if (isRefreshing) {
-        // Don't call refresh again — just queue and wait
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            originalRequest._retry = true;
-            return api(originalRequest);
-          })
-          .catch((e) => Promise.reject(e));
+        }).then(() => api(original)).catch((e) => Promise.reject(e));
       }
 
-      originalRequest._retry = true;
+      original._retry = true;
       isRefreshing = true;
 
       try {
-        // Use dedicated instance to avoid interceptor loop
-        await refreshApi.post("/api/v1/auth/refresh");
+        // Call Next.js refresh route — reads httpOnly cookie server-side
+        await api.post("/api/auth/refresh");
         processQueue(null);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return api(originalRequest);
+        return api(original);
       } catch (refreshError) {
         processQueue(refreshError);
-        isRefreshing = false;
-        if (
-          typeof window !== "undefined" &&
-          !originalRequest.skipAuthRedirect
-        ) {
+        if (!original.skipAuthRedirect && typeof window !== "undefined") {
           window.location.href = "/login";
         }
         return Promise.reject(refreshError);
@@ -128,47 +61,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import axios from "axios";
-
-// export const api = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_API_URL,
-//   withCredentials: true,
-//   headers: { "Content-Type": "application/json" },
-// });
-
-// api.interceptors.response.use(
-//   (res) => res,
-//   async (error) => {
-//     const originalRequest = error.config as typeof error.config & { _retry?: boolean };
-//     if (error.response?.status === 401 && !originalRequest?._retry && !String(originalRequest?.url ?? "").includes("/api/v1/auth/refresh")) {
-//       try {
-//         originalRequest._retry = true;
-//         await api.post("/api/v1/auth/refresh");
-//         return api(originalRequest);
-//       } catch {
-//         if (typeof window !== "undefined") {
-//           window.location.href = "/login";
-//         }
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
