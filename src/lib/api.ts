@@ -81,6 +81,7 @@ api.interceptors.response.use(
     const shouldSkipRefresh =
       originalRequest.skipAuthRefresh === true ||
       String(originalRequest?.url ?? "").includes("/api/v1/auth/login");
+      String(originalRequest?.url ?? "").includes("/api/v1/auth/refresh");
 
     if (
       error.response?.status === 401 &&
